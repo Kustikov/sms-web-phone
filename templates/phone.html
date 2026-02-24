@@ -2,10 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Dual iPhone SMS</title>
-
+<title>Dual iPhone SMS - Sender Groups</title>
 <meta http-equiv="refresh" content="2">
-
 <style>
 body {
     margin: 0;
@@ -58,11 +56,22 @@ body {
     flex-direction: column;
 }
 
+.message-group {
+    margin-bottom: 15px;
+}
+
+.sender-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: #555;
+    margin-bottom: 2px;
+}
+
 .message {
     max-width: 75%;
     padding: 10px 14px;
     border-radius: 20px;
-    margin-bottom: 10px;
+    margin-bottom: 6px;
     font-size: 15px;
     line-height: 1.4;
     background: #e5e5ea;
@@ -72,7 +81,7 @@ body {
 .time {
     font-size: 11px;
     color: #777;
-    margin-top: 4px;
+    margin-top: 2px;
 }
 
 .footer {
@@ -82,7 +91,6 @@ body {
 }
 </style>
 </head>
-
 <body>
 
 <!-- PHONE 1 -->
@@ -92,23 +100,25 @@ body {
         <span id="time1"></span>
         <span>🔋 87%</span>
     </div>
-
-    <div class="header">
-        {{ phone1 }}
-    </div>
-
+    <div class="header">{{ phone1 }}</div>
     <div class="messages">
+        {% set last_sender = None %}
         {% for msg in messages[phone1] %}
-        <div class="message">
-            {{ msg.text }}
-            <div class="time">{{ msg.time }}</div>
-        </div>
+            {% if msg.from != last_sender %}
+            <div class="message-group">
+                <div class="sender-name">{{ msg.from }}</div>
+                <div class="message">{{ msg.text }}</div>
+                <div class="time">{{ msg.time }}</div>
+            </div>
+            {% else %}
+                <div class="message">{{ msg.text }}</div>
+                <div class="time">{{ msg.time }}</div>
+            {% endif %}
+            {% set last_sender = msg.from %}
         {% endfor %}
     </div>
-
     <div class="footer"></div>
 </div>
-
 
 <!-- PHONE 2 -->
 <div class="phone">
@@ -117,20 +127,23 @@ body {
         <span id="time2"></span>
         <span>🔋 82%</span>
     </div>
-
-    <div class="header">
-        {{ phone2 }}
-    </div>
-
+    <div class="header">{{ phone2 }}</div>
     <div class="messages">
+        {% set last_sender = None %}
         {% for msg in messages[phone2] %}
-        <div class="message">
-            {{ msg.text }}
-            <div class="time">{{ msg.time }}</div>
-        </div>
+            {% if msg.from != last_sender %}
+            <div class="message-group">
+                <div class="sender-name">{{ msg.from }}</div>
+                <div class="message">{{ msg.text }}</div>
+                <div class="time">{{ msg.time }}</div>
+            </div>
+            {% else %}
+                <div class="message">{{ msg.text }}</div>
+                <div class="time">{{ msg.time }}</div>
+            {% endif %}
+            {% set last_sender = msg.from %}
         {% endfor %}
     </div>
-
     <div class="footer"></div>
 </div>
 
