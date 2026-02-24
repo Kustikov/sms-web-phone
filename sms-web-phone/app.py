@@ -1,39 +1,53 @@
 import os
-from flask import Flask, request, render_template
-from flask_socketio import SocketIO
+from flask import Flask, request, render_template, jsonify
+from flask_socketio import SocketIO, emit
 
-app = Flask(__name__)
+# Определяем путь к текущей директории
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Явно указываем папку templates
+app = Flask(__name__, template_folder=os.path.join(BASE_DIR, "templates"))
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Список номеров
-NUMBERS = ["996501371580", "996501373903"]
+# Храним SMS в памяти (без базы данных)
+messages = []
 
-# Хранилище сообщений в памяти
-messages = {num: [] for num in NUMBERS}
-
-# --- WEBHOOK ---
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    data = request.json
-    to_number = data.get("to")
-    sender = data.get("from")
-    text = data.get("text")
-
-    if to_number not in NUMBERS:
-        return "Unknown number", 404
-
-    msg = {"sender": sender, "text": text}
-    messages[to_number].append(msg)
-
-    # пушим в Web UI
-    socketio.emit("new_sms", {"number": to_number, "sender": sender, "text": text})
-    return "OK"
-
-# --- WEB UI ---
+# Главная страница (Web Phone UI)
 @app.route("/")
 def index():
-    return render_template("/templates/phone.html", numbers=NUMBERS, messages=messages)
+    return render_template("phone.html", messages=messages)
 
+# Webhook для приема SMS от провайдера
+@app.route("/webhook", methods=["POST"])
+def webhook():
+    try:
+        data = request.get_json(force=True)
+
+        to_number = data.get("to")
+        sender = data.get("from")
+        text = data.get("text")
+
+        if not to_number or not sender or not text:
+            return jsonify({"status": "error", "message": "Invalid data"}), 400
+
+        message = {
+            "to": to_number,
+            "from": sender,
+            "text": text
+        }
+
+        # Сохраняем в памяти
+        messages.append(message)
+
+        # Отправляем в реальном времени в UI
+        socketio.emit("new_sms", message)
+
+        return jsonify({"status": "ok"}), 200
+
+    except Exception as e:
+        print("Webhook error:", e)
+        return jsonify({"status": "error", "message": str(e)}), 500
+
+# Точка входа
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
+    socketio.run(app, host="0.0.0.0", port=10000)
