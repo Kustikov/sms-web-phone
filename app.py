@@ -1,26 +1,46 @@
 from flask import Flask, request, render_template, jsonify
+from datetime import datetime
 
 app = Flask(__name__)
 
-# Хранилище SMS в памяти
-messages = []
+# Два номера
+PHONE_1 = "996501371580"
+PHONE_2 = "996501373903"
+
+# Хранилище сообщений отдельно по номеру
+messages = {
+    PHONE_1: [],
+    PHONE_2: []
+}
 
 @app.route("/")
 def index():
-    return render_template("phone.html", messages=messages)
+    return render_template(
+        "phone.html",
+        phone1=PHONE_1,
+        phone2=PHONE_2,
+        messages=messages
+    )
 
 @app.route("/webhook", methods=["POST"])
 def webhook():
     try:
         data = request.get_json(force=True)
 
+        to_number = str(data.get("to")).replace("+", "")
+        sender = data.get("from")
+        text = data.get("text")
+
+        if to_number not in messages:
+            return jsonify({"status": "ignored"}), 200
+
         message = {
-            "to": data.get("to"),
-            "from": data.get("from"),
-            "text": data.get("text")
+            "from": sender,
+            "text": text,
+            "time": datetime.now().strftime("%H:%M")
         }
 
-        messages.append(message)
+        messages[to_number].append(message)
 
         return jsonify({"status": "ok"}), 200
 
