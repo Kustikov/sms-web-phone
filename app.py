@@ -1,9 +1,9 @@
 from flask import Flask, request, render_template, jsonify
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 
-# Два номера
+# Два тестовых номера
 PHONE_1 = "996501371580"
 PHONE_2 = "996501373903"
 
@@ -12,6 +12,9 @@ messages = {
     PHONE_1: [],
     PHONE_2: []
 }
+
+# Временной сдвиг Кыргызстан UTC+6
+KG_TIME_DELTA = timedelta(hours=6)
 
 @app.route("/")
 def index():
@@ -37,7 +40,7 @@ def webhook():
         message = {
             "from": sender,
             "text": text,
-            "time": datetime.now().strftime("%H:%M")
+            "time": (datetime.utcnow() + KG_TIME_DELTA).strftime("%H:%M")
         }
 
         messages[to_number].append(message)
