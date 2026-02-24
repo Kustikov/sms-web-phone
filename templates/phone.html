@@ -1,47 +1,116 @@
 <!DOCTYPE html>
 <html>
 <head>
-<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
-<meta http-equiv="refresh" content="2">
-<style>
-body { background:#111; color:white; display:flex; justify-content:center; font-family:sans-serif; }
-.phone { width:360px; height:640px; background:#000; padding:10px; overflow:auto; border-radius:20px; }
-.msg { margin:10px 0; padding:8px 12px; border-radius:15px; max-width:70%; background:#333; }
-h4 { margin-top:20px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Web Android Phone</title>
+
+    <!-- Автообновление каждые 2 секунды -->
+    <meta http-equiv="refresh" content="2">
+
+    <style>
+        body {
+            background: #111;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+        }
+
+        .phone {
+            width: 360px;
+            height: 640px;
+            background: #000;
+            border-radius: 30px;
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            border: 8px solid #222;
+        }
+
+        .status-bar {
+            height: 30px;
+            background: #111;
+            color: #aaa;
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 10px;
+        }
+
+        .header {
+            background: #1f1f1f;
+            color: white;
+            padding: 15px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .messages {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #121212;
+        }
+
+        .message {
+            max-width: 75%;
+            padding: 10px 14px;
+            border-radius: 18px;
+            margin-bottom: 10px;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+
+        .incoming {
+            background: #2a2a2a;
+            color: white;
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .footer {
+            height: 50px;
+            background: #111;
+            border-top: 1px solid #333;
+        }
+
+        .sender {
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 3px;
+        }
+    </style>
 </head>
 <body>
-<div class="phone" id="chat">
-<h3>SMS Web Interface</h3>
-<div id="messages">
-{% for num in numbers %}
-  <h4>{{ num }}</h4>
-  {% for m in messages[num] %}
-    <div class="msg"><b>{{ m.sender }}</b>: {{ m.text }}</div>
-  {% endfor %}
-{% endfor %}
-</div>
+
+<div class="phone">
+
+    <div class="status-bar">
+        <span>📶 4G</span>
+        <span>Android SIM Test</span>
+        <span>🔋 82%</span>
+    </div>
+
+    <div class="header">
+        SMS Messages
+    </div>
+
+    <div class="messages">
+        {% for msg in messages %}
+            <div class="message incoming">
+                <div class="sender">{{ msg.from }}</div>
+                {{ msg.text }}
+            </div>
+        {% endfor %}
+    </div>
+
+    <div class="footer"></div>
+
 </div>
 
-<script>
-var socket = io();
-
-socket.on("new_sms", function(data){
-    let container = document.getElementById("messages");
-    // проверяем, есть ли заголовок для номера
-    let headers = container.getElementsByTagName("h4");
-    let exists = false;
-    for(let h of headers){
-        if(h.innerText === data.number){ exists = true; break; }
-    }
-    if(!exists){
-        container.innerHTML += "<h4>"+data.number+"</h4>";
-    }
-    let div = document.createElement("div");
-    div.className = "msg";
-    div.innerHTML = "<b>"+data.sender+"</b>: "+data.text;
-    container.appendChild(div);
-});
-</script>
 </body>
 </html>
