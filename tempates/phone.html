@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+<style>
+body { background:#111; color:white; display:flex; justify-content:center; font-family:sans-serif; }
+.phone { width:360px; height:640px; background:#000; padding:10px; overflow:auto; border-radius:20px; }
+.msg { margin:10px 0; padding:8px 12px; border-radius:15px; max-width:70%; background:#333; }
+h4 { margin-top:20px; }
+</style>
+</head>
+<body>
+<div class="phone" id="chat">
+<h3>SMS Web Interface</h3>
+<div id="messages">
+{% for num in numbers %}
+  <h4>{{ num }}</h4>
+  {% for m in messages[num] %}
+    <div class="msg"><b>{{ m.sender }}</b>: {{ m.text }}</div>
+  {% endfor %}
+{% endfor %}
+</div>
+</div>
+
+<script>
+var socket = io();
+
+socket.on("new_sms", function(data){
+    let container = document.getElementById("messages");
+    // проверяем, есть ли заголовок для номера
+    let headers = container.getElementsByTagName("h4");
+    let exists = false;
+    for(let h of headers){
+        if(h.innerText === data.number){ exists = true; break; }
+    }
+    if(!exists){
+        container.innerHTML += "<h4>"+data.number+"</h4>";
+    }
+    let div = document.createElement("div");
+    div.className = "msg";
+    div.innerHTML = "<b>"+data.sender+"</b>: "+data.text;
+    container.appendChild(div);
+});
+</script>
+</body>
+</html>
