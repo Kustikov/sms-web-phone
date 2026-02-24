@@ -1,39 +1,30 @@
-import os
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, jsonify
 from flask_socketio import SocketIO
 
 app = Flask(__name__)
 socketio = SocketIO(app, cors_allowed_origins="*")
 
-# Список номеров
-NUMBERS = ["996501371580", "996501373903"]
+# Хранилище SMS в памяти
+messages = []
 
-# Хранилище сообщений в памяти
-messages = {num: [] for num in NUMBERS}
+@app.route("/", methods=["GET"])
+def index():
+    return render_template("phone.html", messages=messages)
 
-# --- WEBHOOK ---
 @app.route("/webhook", methods=["POST"])
 def webhook():
-    data = request.json
-    to_number = data.get("to")
-    sender = data.get("from")
-    text = data.get("text")
+    data = request.get_json(force=True)
 
-    if to_number not in NUMBERS:
-        return "Unknown number", 404
+    message = {
+        "to": data.get("to"),
+        "from": data.get("from"),
+        "text": data.get("text")
+    }
 
-    msg = {"sender": sender, "text": text}
-    messages[to_number].append(msg)
+    messages.append(message)
+    socketio.emit("new_sms", message)
 
-    # пушим в Web UI
-    socketio.emit("new_sms", {"number": to_number, "sender": sender, "text": text})
-    return "OK"
-
-# --- WEB UI ---
-@app.route("/")
-def index():
-    return render_template("templates/phone.html", numbers=NUMBERS, messages=messages)
+    return jsonify({"status": "ok"}), 200
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    socketio.run(app, host="0.0.0.0", port=port)
+    socketio.run(app, host="0.0.0.0", port=10000)
