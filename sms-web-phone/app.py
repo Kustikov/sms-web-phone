@@ -32,7 +32,7 @@ def webhook():
 # --- WEB UI ---
 @app.route("/")
 def index():
-    return render_template("phone.html", numbers=NUMBERS, messages=messages)
+    return render_template("templates/phone.html", numbers=NUMBERS, messages=messages)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
