@@ -45,7 +45,7 @@ body {
     text-align: center;
     font-weight: 600;
     border-bottom: 1px solid #ddd;
-    font-size: 14px;
+    font-size: 16px;
 }
 
 .messages {
@@ -56,15 +56,15 @@ body {
     flex-direction: column;
 }
 
-.message-group {
+.sender-group {
     margin-bottom: 15px;
 }
 
 .sender-name {
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 600;
     color: #555;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .message {
@@ -78,7 +78,7 @@ body {
     align-self: flex-start;
 }
 
-.time {
+.message-time {
     font-size: 11px;
     color: #777;
     margin-top: 2px;
@@ -100,19 +100,19 @@ body {
         <span id="time1"></span>
         <span>🔋 87%</span>
     </div>
-    <div class="header">{{ phone1 }}</div>
+    <div class="header">Сообщения</div>
     <div class="messages">
         {% set last_sender = None %}
         {% for msg in messages[phone1] %}
             {% if msg.from != last_sender %}
-            <div class="message-group">
+            <div class="sender-group">
                 <div class="sender-name">{{ msg.from }}</div>
                 <div class="message">{{ msg.text }}</div>
-                <div class="time">{{ msg.time }}</div>
+                <div class="message-time">{{ msg.time }}</div>
             </div>
             {% else %}
                 <div class="message">{{ msg.text }}</div>
-                <div class="time">{{ msg.time }}</div>
+                <div class="message-time">{{ msg.time }}</div>
             {% endif %}
             {% set last_sender = msg.from %}
         {% endfor %}
@@ -127,19 +127,19 @@ body {
         <span id="time2"></span>
         <span>🔋 82%</span>
     </div>
-    <div class="header">{{ phone2 }}</div>
+    <div class="header">Сообщения</div>
     <div class="messages">
         {% set last_sender = None %}
         {% for msg in messages[phone2] %}
             {% if msg.from != last_sender %}
-            <div class="message-group">
+            <div class="sender-group">
                 <div class="sender-name">{{ msg.from }}</div>
                 <div class="message">{{ msg.text }}</div>
-                <div class="time">{{ msg.time }}</div>
+                <div class="message-time">{{ msg.time }}</div>
             </div>
             {% else %}
                 <div class="message">{{ msg.text }}</div>
-                <div class="time">{{ msg.time }}</div>
+                <div class="message-time">{{ msg.time }}</div>
             {% endif %}
             {% set last_sender = msg.from %}
         {% endfor %}
@@ -150,7 +150,7 @@ body {
 <script>
 function updateTime() {
     const now = new Date();
-    const formatted = now.toLocaleTimeString([], {hour: '2-digit', minute: '2-digit'});
+    const formatted = now.toLocaleTimeString('ru-KG', {hour: '2-digit', minute:'2-digit'});
     document.getElementById("time1").innerText = formatted;
     document.getElementById("time2").innerText = formatted;
 }
