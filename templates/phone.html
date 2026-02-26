@@ -150,6 +150,7 @@ body {
 <script>
 function updateTime() {
     const now = new Date();
+    now.setHours(now.getHours() + 2);
     const formatted = now.toLocaleTimeString('kg-KG', {hour: '2-digit', minute:'2-digit'});
     document.getElementById("time1").innerText = formatted;
     document.getElementById("time2").innerText = formatted;
