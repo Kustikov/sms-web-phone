@@ -40,7 +40,7 @@ def webhook():
         message = {
             "from": sender,
             "text": text,
-            "time": (datetime.utc() + KG_TIME_DELTA).strftime("%H:%M")
+            "time": (datetime.utcnow() + KG_TIME_DELTA).strftime("%H:%M")
         }
 
         messages[to_number].append(message)
